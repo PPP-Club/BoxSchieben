@@ -8,21 +8,16 @@ const airChar = -1
 const boxChar = 1
 const finishChar = 2
 
-var charPos = []
-var boxPos = []
-var finishPos = []
-
-var moveX = 0
-var moveY = 0
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	tilemap = $TileMap
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
+# warning-ignore:unused_argument
 func _process(delta):
 	pass
 
+# warning-ignore:unused_argument
 func _input(event):
 	var oldPlayerPosFire = tilemap.get_used_cells_by_id(fireChar)[0];
 	var oldPlayerPosWater = tilemap.get_used_cells_by_id(waterChar)[0];
@@ -55,3 +50,26 @@ func _input(event):
 			tilemap.set_cell(oldPlayerPosWater[0], oldPlayerPosWater[1], airChar)
 		else:
 			print("ERROR: Couldn't remove old Player")
+
+	elif newPlayerPos.size() != 0 && tilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == boxChar:
+		var oldBoxPos = tilemap.get_used_cells_by_id(boxChar)[0];
+		var newBoxPos;
+		
+		if newPlayerPos[2] == fireChar:
+			newBoxPos = [oldBoxPos[0] + (newPlayerPos[0] - oldPlayerPosFire[0]), oldBoxPos[1] + (newPlayerPos[1] - oldPlayerPosFire[1])]
+		elif newPlayerPos[2] == waterChar:
+			newBoxPos = [oldBoxPos[0] + (newPlayerPos[0] - oldPlayerPosWater[0]), oldBoxPos[1] + (newPlayerPos[1] - oldPlayerPosWater[1])]
+		
+		if tilemap.get_cell(newBoxPos[0], newBoxPos[1]) == airChar || tilemap.get_cell(newBoxPos[0], newBoxPos[1]) == finishChar:
+			tilemap.set_cell(newBoxPos[0], newBoxPos[1], boxChar);
+			tilemap.set_cell(oldBoxPos[0], oldBoxPos[1], airChar);
+
+			if newPlayerPos.size() != 0 && tilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar:
+				tilemap.set_cell(newPlayerPos[0], newPlayerPos[1], newPlayerPos[2])
+
+			if newPlayerPos[2] == fireChar:
+				tilemap.set_cell(oldPlayerPosFire[0], oldPlayerPosFire[1], airChar)
+			elif newPlayerPos[2] == waterChar:
+				tilemap.set_cell(oldPlayerPosWater[0], oldPlayerPosWater[1], airChar)
+			else:
+				print("ERROR: Couldn't remove old Player")
