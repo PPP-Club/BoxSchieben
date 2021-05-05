@@ -1,6 +1,7 @@
 extends Node2D
 
 var tilemap: TileMap
+var output: Label
 const waterChar = 0
 const fireChar = 5 
 
@@ -11,17 +12,21 @@ const finishChar = 2
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	tilemap = $TileMap
+	output = $Label
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 # warning-ignore:unused_argument
 func _process(delta):
-	pass
+	var finishPoints = tilemap.get_used_cells_by_id(finishChar);
+	if(!finishPoints):
+		output.text = "You Won!";
 
 # warning-ignore:unused_argument
 func _input(event):
 	var oldPlayerPosFire = tilemap.get_used_cells_by_id(fireChar)[0];
 	var oldPlayerPosWater = tilemap.get_used_cells_by_id(waterChar)[0];
-	var newPlayerPos = []
+	var newPlayerPos = [];
+
 	
 	if Input.is_key_pressed(KEY_W):
 		newPlayerPos = [oldPlayerPosFire[0], oldPlayerPosFire[1] - 1, fireChar]
@@ -52,7 +57,7 @@ func _input(event):
 			print("ERROR: Couldn't remove old Player")
 
 	elif newPlayerPos.size() != 0 && tilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == boxChar:
-		var oldBoxPos = tilemap.get_used_cells_by_id(boxChar)[0];
+		var oldBoxPos = newPlayerPos;
 		var newBoxPos;
 		
 		if newPlayerPos[2] == fireChar:
