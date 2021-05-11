@@ -3,17 +3,53 @@ extends Node2D
 var playerTilemap: TileMap
 var essTilemap: TileMap
 var output: Label
-const waterChar = 0
-const fireChar = 5 
+const waterChar := 0
+const fireChar := 5 
 
-const airChar = -1
-const boxChar = 1
-const finishChar = 2
+const airChar := -1
+const boxChar := 1
+const finishChar := 2
+
+const map :=   ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 
+				'X', ' ', ' ', ' ', ' ', 'X', 'X', 'X', ' ', ' ', 'X', 'X', 
+				'X', ' ', 'B', ' ', ' ', 'X', 'X', 'X', ' ', 'B', 'X', 'X', 
+				'X', 'X', 'X', 'X', ' ', ' ', ' ', ' ', ' ', ' ', 'X', 'X', 
+				'X', 'X', 'X', ' ', ' ', ' ', 'X', 'X', 'X', ' ', 'X', 'X', 
+				'X', '2', ' ', ' ', ' ', ' ', 'X', 'X', ' ', ' ', ' ', 'X', 
+				'X', ' ', ' ', ' ', '1', 'X', 'X', 'X', ' ', ' ', ' ', 'X', 
+				'X', ' ', 'B', ' ', ' ', 'X', 'X', 'X', ' ', ' ', ' ', 'X', 
+				'X', ' ', ' ', ' ', ' ', 'X', 'X', 'X', 'F', 'F', 'F', 'X', 
+				'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', ]
 
 func _ready():
 	playerTilemap = $mainTileMap
 	essTilemap = $essentialTileMap
 	output = $Label
+	genMap(map, 12)
+
+func genMap(mapArray: PoolStringArray, lineLengh: int):
+	var arrayLengh := mapArray.size()
+	for pos in range(arrayLengh):
+		var y = pos / lineLengh
+		var x = pos - (y * lineLengh)
+		tilemap.set_cell(x, y, _getTileByString(mapArray[pos]))
+
+func _getTileByString(key: String):
+	match key:
+		' ':
+			return -1
+		'X':
+			return 3
+		'B':
+			return 1
+		'1':
+			return 0
+		'2':
+			return 5
+		'F':
+			return 2
+		'G':
+			return 4
 
 func _process(delta):
 	var finishPoints = essTilemap.get_used_cells_by_id(finishChar);
