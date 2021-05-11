@@ -82,7 +82,8 @@ func _input(event):
 		newPlayerPos = [oldPlayerPosWater[0] + 1, oldPlayerPosWater[1], waterChar]
 	
 	# MOVE PLAYER #
-	if newPlayerPos.size() != 0 && (playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar && essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar || essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == finishChar):
+	if newPlayerPos.size() != 0 && (playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar && essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar || (essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == finishChar && playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) != boxChar)):
+		print("MOVE PLAYER")
 		playerTilemap.set_cell(newPlayerPos[0], newPlayerPos[1], newPlayerPos[2])
 
 		if newPlayerPos[2] == fireChar:
@@ -93,7 +94,8 @@ func _input(event):
 			print("ERROR: Couldn't remove old Player")
 	
 	# NEW POS IS BOX => MOVE BOX AND PLAYER #
-	elif newPlayerPos.size() != 0 && essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == boxChar:
+	elif newPlayerPos.size() != 0 && playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == boxChar:
+		print("MOVE BOX")
 		var oldBoxPos = newPlayerPos;
 		var newBoxPos;
 		
@@ -102,9 +104,9 @@ func _input(event):
 		elif newPlayerPos[2] == waterChar:
 			newBoxPos = [oldBoxPos[0] + (newPlayerPos[0] - oldPlayerPosWater[0]), oldBoxPos[1] + (newPlayerPos[1] - oldPlayerPosWater[1])]
 		
-		if essTilemap.get_cell(newBoxPos[0], newBoxPos[1]) == airChar && playerTilemap.get_cell(newBoxPos[0], newBoxPos[1]) == airChar || essTilemap.get_cell(newBoxPos[0], newBoxPos[1]) == finishChar:
-			essTilemap.set_cell(newBoxPos[0], newBoxPos[1], boxChar);
-			essTilemap.set_cell(oldBoxPos[0], oldBoxPos[1], airChar);
+		if playerTilemap.get_cell(newBoxPos[0], newBoxPos[1]) == airChar:
+			playerTilemap.set_cell(newBoxPos[0], newBoxPos[1], boxChar);
+			playerTilemap.set_cell(oldBoxPos[0], oldBoxPos[1], airChar);
 
 			if newPlayerPos.size() != 0 && playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar:
 				playerTilemap.set_cell(newPlayerPos[0], newPlayerPos[1], newPlayerPos[2])
