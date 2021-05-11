@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/wasser.png-98e3a414ed4d9e10b04d5a7c4ea32051.stex"
+path="res://.import/pumput-nord.png-70389c451b9aa402da6600b6cda27849.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://pictures/wasser.png"
-dest_files=[ "res://.import/wasser.png-98e3a414ed4d9e10b04d5a7c4ea32051.stex" ]
+source_file="res://pictures/pumput-nord.png"
+dest_files=[ "res://.import/pumput-nord.png-70389c451b9aa402da6600b6cda27849.stex" ]
 
 [params]
 
@@ -20,7 +20,7 @@ compress/hdr_mode=0
 compress/bptc_ldr=0
 compress/normal_map=0
 flags/repeat=0
-flags/filter=false
+flags/filter=true
 flags/mipmaps=false
 flags/anisotropic=false
 flags/srgb=2

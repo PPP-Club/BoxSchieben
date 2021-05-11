@@ -1,6 +1,7 @@
 extends Node2D
 
-var tilemap: TileMap
+var playerTilemap: TileMap
+var essTilemap: TileMap
 var output: Label
 const waterChar := 0
 const fireChar := 5 
@@ -20,9 +21,9 @@ const map :=   ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X',
 				'X', ' ', ' ', ' ', ' ', 'X', 'X', 'X', 'F', 'F', 'F', 'X', 
 				'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', ]
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	tilemap = $TileMap
+	playerTilemap = $mainTileMap
+	essTilemap = $essentialTileMap
 	output = $Label
 	genMap(map, 12)
 
@@ -50,20 +51,18 @@ func _getTileByString(key: String):
 		'G':
 			return 4
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-# warning-ignore:unused_argument
 func _process(delta):
-	var finishPoints = tilemap.get_used_cells_by_id(finishChar);
+	var finishPoints = essTilemap.get_used_cells_by_id(finishChar);
 	if(!finishPoints):
 		output.text = "You Won!";
 
 # warning-ignore:unused_argument
 func _input(event):
-	var oldPlayerPosFire = tilemap.get_used_cells_by_id(fireChar)[0];
-	var oldPlayerPosWater = tilemap.get_used_cells_by_id(waterChar)[0];
+	var oldPlayerPosFire = playerTilemap.get_used_cells_by_id(fireChar)[0];
+	var oldPlayerPosWater = playerTilemap.get_used_cells_by_id(waterChar)[0];
 	var newPlayerPos = [];
 
-	
+	# CALCULATION PROCESS OF NEW PLAYERPOS #
 	if Input.is_key_pressed(KEY_W):
 		newPlayerPos = [oldPlayerPosFire[0], oldPlayerPosFire[1] - 1, fireChar]
 	elif Input.is_key_pressed(KEY_S):
@@ -82,17 +81,19 @@ func _input(event):
 	elif Input.is_key_pressed(KEY_RIGHT):
 		newPlayerPos = [oldPlayerPosWater[0] + 1, oldPlayerPosWater[1], waterChar]
 	
-	if newPlayerPos.size() != 0 && tilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar:
-		tilemap.set_cell(newPlayerPos[0], newPlayerPos[1], newPlayerPos[2])
+	# MOVE PLAYER #
+	if newPlayerPos.size() != 0 && (playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar && essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar || essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == finishChar):
+		playerTilemap.set_cell(newPlayerPos[0], newPlayerPos[1], newPlayerPos[2])
 
 		if newPlayerPos[2] == fireChar:
-			tilemap.set_cell(oldPlayerPosFire[0], oldPlayerPosFire[1], airChar)
+			playerTilemap.set_cell(oldPlayerPosFire[0], oldPlayerPosFire[1], airChar)
 		elif newPlayerPos[2] == waterChar:
-			tilemap.set_cell(oldPlayerPosWater[0], oldPlayerPosWater[1], airChar)
+			playerTilemap.set_cell(oldPlayerPosWater[0], oldPlayerPosWater[1], airChar)
 		else:
 			print("ERROR: Couldn't remove old Player")
-
-	elif newPlayerPos.size() != 0 && tilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == boxChar:
+	
+	# NEW POS IS BOX => MOVE BOX AND PLAYER #
+	elif newPlayerPos.size() != 0 && essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == boxChar:
 		var oldBoxPos = newPlayerPos;
 		var newBoxPos;
 		
@@ -101,16 +102,16 @@ func _input(event):
 		elif newPlayerPos[2] == waterChar:
 			newBoxPos = [oldBoxPos[0] + (newPlayerPos[0] - oldPlayerPosWater[0]), oldBoxPos[1] + (newPlayerPos[1] - oldPlayerPosWater[1])]
 		
-		if tilemap.get_cell(newBoxPos[0], newBoxPos[1]) == airChar || tilemap.get_cell(newBoxPos[0], newBoxPos[1]) == finishChar:
-			tilemap.set_cell(newBoxPos[0], newBoxPos[1], boxChar);
-			tilemap.set_cell(oldBoxPos[0], oldBoxPos[1], airChar);
+		if essTilemap.get_cell(newBoxPos[0], newBoxPos[1]) == airChar && playerTilemap.get_cell(newBoxPos[0], newBoxPos[1]) == airChar || essTilemap.get_cell(newBoxPos[0], newBoxPos[1]) == finishChar:
+			essTilemap.set_cell(newBoxPos[0], newBoxPos[1], boxChar);
+			essTilemap.set_cell(oldBoxPos[0], oldBoxPos[1], airChar);
 
-			if newPlayerPos.size() != 0 && tilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar:
-				tilemap.set_cell(newPlayerPos[0], newPlayerPos[1], newPlayerPos[2])
+			if newPlayerPos.size() != 0 && playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar:
+				playerTilemap.set_cell(newPlayerPos[0], newPlayerPos[1], newPlayerPos[2])
 
 			if newPlayerPos[2] == fireChar:
-				tilemap.set_cell(oldPlayerPosFire[0], oldPlayerPosFire[1], airChar)
+				playerTilemap.set_cell(oldPlayerPosFire[0], oldPlayerPosFire[1], airChar)
 			elif newPlayerPos[2] == waterChar:
-				tilemap.set_cell(oldPlayerPosWater[0], oldPlayerPosWater[1], airChar)
+				playerTilemap.set_cell(oldPlayerPosWater[0], oldPlayerPosWater[1], airChar)
 			else:
 				print("ERROR: Couldn't remove old Player")
