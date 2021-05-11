@@ -32,7 +32,7 @@ func genMap(mapArray: PoolStringArray, lineLengh: int):
 	for pos in range(arrayLengh):
 		var y = pos / lineLengh
 		var x = pos - (y * lineLengh)
-		tilemap.set_cell(x, y, _getTileByString(mapArray[pos]))
+		essTilemap.set_cell(x, y, _getTileByString(mapArray[pos]))
 
 func _getTileByString(key: String):
 	match key:
