@@ -32,9 +32,13 @@ func genMap(mapArray: PoolStringArray, lineLengh: int):
 	for pos in range(arrayLengh):
 		var y = pos / lineLengh
 		var x = pos - (y * lineLengh)
-		essTilemap.set_cell(x, y, _getTileByString(mapArray[pos]))
+		var tile = _getTileByString(mapArray[pos])
+		if _walkable(tile):
+			essTilemap.set_cell(x, y, tile)
+		else:
+			playerTilemap.set_cell(x, y, tile)
 
-func _getTileByString(key: String):
+func _getTileByString(key: String) -> int:
 	match key:
 		' ':
 			return -1
@@ -50,6 +54,10 @@ func _getTileByString(key: String):
 			return 2
 		'G':
 			return 4
+	return -1
+
+func _walkable(tile: int) -> bool:
+	return tile == _getTileByString('F') || tile == _getTileByString('G')
 
 func _process(delta):
 	var finishPoints = essTilemap.get_used_cells_by_id(finishChar);
@@ -58,6 +66,9 @@ func _process(delta):
 
 # warning-ignore:unused_argument
 func _input(event):
+	if(!playerTilemap.get_used_cells_by_id(fireChar)):
+		return
+	
 	var oldPlayerPosFire = playerTilemap.get_used_cells_by_id(fireChar)[0];
 	var oldPlayerPosWater = playerTilemap.get_used_cells_by_id(waterChar)[0];
 	var newPlayerPos = [];
