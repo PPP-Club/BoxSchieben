@@ -10,6 +10,7 @@ script = ExtResource( 2 )
 scale = Vector2( 4, 4 )
 tile_set = ExtResource( 1 )
 cell_size = Vector2( 16, 16 )
+cell_quadrant_size = 64
 format = 1
 
 [node name="mainTileMap" type="TileMap" parent="."]
