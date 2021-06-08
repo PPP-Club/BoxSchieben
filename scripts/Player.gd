@@ -10,18 +10,19 @@ var mapgenerator: Node2D
 
 const airChar := -1
 const boxChar := 1
-const finishChar := 2
+const finishCharBlue := 4
+const finishCharRed := 2
 
 const map :=   ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 
 				'X', ' ', ' ', ' ', ' ', 'X', 'X', 'X', ' ', ' ', 'X', 'X', 
-				'X', ' ', 'B', ' ', ' ', 'X', 'X', 'X', ' ', 'B', 'X', 'X', 
+				'X', ' ', '1', ' ', 'B', 'X', 'X', 'X', ' ', 'B', 'X', 'X', 
 				'X', 'X', 'X', 'X', ' ', ' ', ' ', ' ', ' ', ' ', 'X', 'X', 
 				'X', 'X', 'X', ' ', ' ', ' ', 'X', 'X', 'X', ' ', 'X', 'X', 
-				'X', '2', ' ', ' ', ' ', ' ', 'X', 'X', ' ', ' ', ' ', 'X', 
-				'X', ' ', ' ', ' ', '1', 'X', 'X', 'X', ' ', ' ', ' ', 'X', 
-				'X', ' ', 'B', ' ', ' ', 'X', 'X', 'X', ' ', ' ', ' ', 'X', 
-				'X', ' ', ' ', ' ', ' ', 'X', 'X', 'X', 'F', 'F', 'F', 'X', 
-				'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', ]
+				'X', ' ', ' ', ' ', 'B', ' ', 'X', 'X', ' ', ' ', ' ', 'X', 
+				'X', ' ', ' ', ' ', ' ', 'X', 'X', 'X', ' ', ' ', ' ', 'X', 
+				'X', ' ', '2', ' ', ' ', 'X', 'X', 'X', ' ', ' ', ' ', 'X', 
+				'X', ' ', ' ', ' ', ' ', 'X', 'X', 'X', 'F', 'G', 'F', 'X', 
+				'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
 
 func _ready():
 	playerTilemap = $mainTileMap
@@ -31,9 +32,7 @@ func _ready():
 	mapgenerator.genMap(map, 12, essTilemap, playerTilemap)
 
 func _process(delta):
-	var finishPoints = essTilemap.get_used_cells_by_id(finishChar);
-	if(!finishPoints):
-		output.text = "You Won!";
+	pass
 
 # warning-ignore:unused_argument
 func _input(event):
@@ -63,9 +62,16 @@ func _input(event):
 	elif Input.is_key_pressed(KEY_RIGHT):
 		newPlayerPos = [oldPlayerPosWater[0] + 1, oldPlayerPosWater[1], waterChar]
 	
+	if newPlayerPos.size() == 0: return
+	
+	var playerPosInEss = essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1])
+	var playerPosInMain = playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1])
+	
+	var isAir = playerPosInMain == airChar && playerPosInEss == airChar
+	var isFinish = playerPosInEss == finishCharRed || playerPosInEss == finishCharBlue
+
 	# MOVE PLAYER #
-	if newPlayerPos.size() != 0 && (playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar && essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == airChar || (essTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == finishChar && playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) != boxChar)):
-		print("MOVE PLAYER")
+	if isAir || isFinish && playerPosInMain != boxChar:
 		playerTilemap.set_cell(newPlayerPos[0], newPlayerPos[1], newPlayerPos[2])
 
 		if newPlayerPos[2] == fireChar:
@@ -77,7 +83,6 @@ func _input(event):
 	
 	# NEW POS IS BOX => MOVE BOX AND PLAYER #
 	elif newPlayerPos.size() != 0 && playerTilemap.get_cell(newPlayerPos[0], newPlayerPos[1]) == boxChar:
-		print("MOVE BOX")
 		var oldBoxPos = newPlayerPos;
 		var newBoxPos;
 		
@@ -99,3 +104,22 @@ func _input(event):
 				playerTilemap.set_cell(oldPlayerPosWater[0], oldPlayerPosWater[1], airChar)
 			else:
 				print("ERROR: Couldn't remove old Player")
+		output.text = ""
+		if(checkWinSituation()):
+			output.text = "You won... I think"
+
+func checkWinSituation() -> bool:
+	var boxPos = playerTilemap.get_used_cells_by_id(boxChar)
+	var boxCount = boxPos.size()
+	var pointPosRed = essTilemap.get_used_cells_by_id(finishCharRed)
+	var pointPosBlue = essTilemap.get_used_cells_by_id(finishCharBlue)
+	var pointPos = pointPosRed + pointPosBlue
+	var result = false
+	var counter = 0
+
+	for pos in pointPos:
+		if boxPos.find(pos) != -1:
+			counter += 1
+		if counter == boxCount:
+			return true
+	return false
